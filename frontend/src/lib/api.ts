@@ -55,7 +55,10 @@ export const getProducts = async (token: string): Promise<Product[]> => {
   return res.json();
 };
 
-export const addProduct = async (product: Omit<Product, '_id' | 'userId'>, token: string): Promise<Product> => {
+export const addProduct = async (
+  product: Omit<Product, '_id' | 'userId'>,
+  token: string
+): Promise<Product> => {
   const res = await fetch(`${API_BASE_URL}/products`, {
     method: 'POST',
     headers: authHeaders(token),
@@ -65,7 +68,11 @@ export const addProduct = async (product: Omit<Product, '_id' | 'userId'>, token
   return res.json();
 };
 
-export const updateProduct = async (id: string, updates: Partial<Product>, token: string): Promise<Product> => {
+export const updateProduct = async (
+  id: string,
+  updates: Partial<Product>,
+  token: string
+): Promise<Product> => {
   const res = await fetch(`${API_BASE_URL}/products/${id}`, {
     method: 'PUT',
     headers: authHeaders(token),
@@ -105,21 +112,52 @@ export const generateAlerts = (products: Product[]): Alert[] => {
     const maxStock = product.maxStockLevel || 1000;
 
     if (product.quantity === 0) {
-      alerts.push({ type: 'out_of_stock', productName: product.productName, currentStock: 0, message: 'Out of stock! Immediate reorder required.', minStockLevel: minStock });
+      alerts.push({
+        type: 'out_of_stock',
+        productName: product.productName,
+        currentStock: 0,
+        message: 'Out of stock! Immediate reorder required.',
+        minStockLevel: minStock,
+      });
       return;
     }
     if (product.expiryDate) {
       const exp = new Date(product.expiryDate);
       if (exp >= now && exp <= fiveDaysFromNow) {
-        alerts.push({ type: 'expiring', productName: product.productName, currentStock: product.quantity, message: 'Expiring within 5 days!', expiryDate: product.expiryDate });
+        alerts.push({
+          type: 'expiring',
+          productName: product.productName,
+          currentStock: product.quantity,
+          message: 'Expiring within 5 days!',
+          expiryDate: product.expiryDate,
+        });
       }
     }
     if (product.quantity <= minStock) {
-      alerts.push({ type: 'low_stock', productName: product.productName, currentStock: product.quantity, message: `Stock critically low. Reorder ${minStock * 2 - product.quantity}+ units.`, minStockLevel: minStock });
+      alerts.push({
+        type: 'low_stock',
+        productName: product.productName,
+        currentStock: product.quantity,
+        message: `Stock critically low. Reorder ${minStock * 2 - product.quantity}+ units.`,
+        minStockLevel: minStock,
+      });
     } else if (product.quantity >= maxStock) {
-      alerts.push({ type: 'overstock', productName: product.productName, currentStock: product.quantity, message: 'Excess inventory. Consider reducing next order.', maxStockLevel: maxStock });
+      alerts.push({
+        type: 'overstock',
+        productName: product.productName,
+        currentStock: product.quantity,
+        message: 'Excess inventory. Consider reducing next order.',
+        maxStockLevel: maxStock,
+      });
     } else {
-      alerts.push({ type: 'optimal', productName: product.productName, currentStock: product.quantity, message: 'Stock level is optimal.', minStockLevel: minStock, maxStockLevel: maxStock });
+      alerts.push({
+        type: 'optimal',
+        productName: product.productName,
+        currentStock: product.quantity,
+        message: 'Stock level is optimal.',
+        minStockLevel: minStock,
+        maxStockLevel: maxStock,
+      });
     }
   });
   return alerts;

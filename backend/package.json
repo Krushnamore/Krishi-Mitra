@@ -2,11 +2,14 @@
   "name": "agri-insights-backend",
   "version": "2.0.0",
   "description": "Backend for Agri Insights Hub - JWT Auth + Roles",
-  "main": "server.js",
+  "main": "src/server.js",
   "type": "module",
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "keywords": ["agriculture", "inventory", "api", "jwt"],
   "author": "",

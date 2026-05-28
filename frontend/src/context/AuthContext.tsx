@@ -44,21 +44,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [token, setToken] = useState<string | null>(() => localStorage.getItem('agri_token'));
   const [isLoading, setIsLoading] = useState(true);
 
-  const authFetch = useCallback(async (url: string, options: RequestInit = {}) => {
-    const headers: HeadersInit = {
-      'Content-Type': 'application/json',
-      ...(options.headers || {}),
-    };
-    if (token) {
-      (headers as Record<string, string>)['Authorization'] = `Bearer ${token}`;
-    }
-    return fetch(url, { ...options, headers });
-  }, [token]);
+  const authFetch = useCallback(
+    async (url: string, options: RequestInit = {}) => {
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+        ...(options.headers || {}),
+      };
+      if (token) {
+        (headers as Record<string, string>)['Authorization'] = `Bearer ${token}`;
+      }
+      return fetch(url, { ...options, headers });
+    },
+    [token]
+  );
 
-  // Verify token on mount
   useEffect(() => {
     const verify = async () => {
-      if (!token) { setIsLoading(false); return; }
+      if (!token) {
+        setIsLoading(false);
+        return;
+      }
       try {
         const res = await fetch(`${API_BASE}/auth/me`, {
           headers: { Authorization: `Bearer ${token}` },
@@ -116,21 +121,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await fetch(`${API_BASE}/auth/location`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ lat, lng, city }),
       });
-      setUser(prev => prev ? { ...prev, location: { lat, lng, city } } : prev);
+      setUser(prev => (prev ? { ...prev, location: { lat, lng, city } } : prev));
     } catch (e) {
       console.error('Failed to update location', e);
     }
   };
 
   return (
-    <AuthContext.Provider value={{
-      user, token, isLoading,
-      isAuthenticated: !!user,
-      login, register, logout, updateLocation, authFetch,
-    }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        token,
+        isLoading,
+        isAuthenticated: !!user,
+        login,
+        register,
+        logout,
+        updateLocation,
+        authFetch,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

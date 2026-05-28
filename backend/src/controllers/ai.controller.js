@@ -100,9 +100,11 @@ export const getNearbyRetailers = async (req, res) => {
   try {
     const { city } = req.query;
     const retailers = await User.find({ role: 'retailer' }).select('-password');
+
     const retailerList = retailers.map(r => ({
       id: r._id,
       name: r.name,
+      phone: r.phone || '',
       shopName: r.shopName || r.name + "'s Shop",
       shopAddress: r.shopAddress || city || 'Location not set',
       email: r.email,
@@ -110,6 +112,7 @@ export const getNearbyRetailers = async (req, res) => {
       lat: r.location?.lat,
       lng: r.location?.lng,
     }));
+
     res.status(200).json({ retailers: retailerList });
   } catch (error) {
     console.error('Nearby retailers error:', error.message);

@@ -9,7 +9,11 @@ const generateToken = (userId) => {
 // POST /api/auth/register
 export const register = async (req, res) => {
   try {
-    const { name, email, password, role, farmSize, cropTypes, shopName, shopAddress } = req.body;
+    const {
+      name, email, password, role, phone,
+      farmSize, cropTypes,
+      shopName, shopAddress,
+    } = req.body;
 
     if (!name || !email || !password || !role) {
       return res.status(400).json({ message: 'Name, email, password, and role are required' });
@@ -29,6 +33,7 @@ export const register = async (req, res) => {
       email,
       password,
       role,
+      phone: phone || '',
       farmSize: farmSize || '',
       cropTypes: cropTypes || [],
       shopName: shopName || '',
@@ -36,7 +41,6 @@ export const register = async (req, res) => {
     });
 
     await user.save();
-
     const token = generateToken(user._id);
 
     res.status(201).json({
@@ -47,6 +51,11 @@ export const register = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        phone: user.phone,
+        shopName: user.shopName,
+        shopAddress: user.shopAddress,
+        farmSize: user.farmSize,
+        cropTypes: user.cropTypes,
       },
     });
   } catch (error) {
@@ -84,6 +93,7 @@ export const login = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        phone: user.phone,
         location: user.location,
         farmSize: user.farmSize,
         cropTypes: user.cropTypes,
@@ -97,7 +107,7 @@ export const login = async (req, res) => {
   }
 };
 
-// GET /api/auth/me  (protected)
+// GET /api/auth/me
 export const getMe = async (req, res) => {
   res.status(200).json({
     user: {
@@ -105,6 +115,7 @@ export const getMe = async (req, res) => {
       name: req.user.name,
       email: req.user.email,
       role: req.user.role,
+      phone: req.user.phone,
       location: req.user.location,
       farmSize: req.user.farmSize,
       cropTypes: req.user.cropTypes,
@@ -114,7 +125,7 @@ export const getMe = async (req, res) => {
   });
 };
 
-// PATCH /api/auth/location  (protected) - save browser geolocation
+// PATCH /api/auth/location
 export const updateLocation = async (req, res) => {
   try {
     const { lat, lng, city } = req.body;

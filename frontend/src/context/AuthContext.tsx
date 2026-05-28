@@ -7,6 +7,7 @@ interface User {
   name: string;
   email: string;
   role: 'farmer' | 'retailer';
+  phone?: string;
   location?: { lat: number | null; lng: number | null; city: string };
   farmSize?: string;
   cropTypes?: string[];
@@ -31,6 +32,7 @@ interface RegisterData {
   email: string;
   password: string;
   role: 'farmer' | 'retailer';
+  phone?: string;
   farmSize?: string;
   cropTypes?: string[];
   shopName?: string;
@@ -41,7 +43,9 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(() => localStorage.getItem('agri_token'));
+  const [token, setToken] = useState<string | null>(
+    () => localStorage.getItem('agri_token')
+  );
   const [isLoading, setIsLoading] = useState(true);
 
   const authFetch = useCallback(
@@ -60,10 +64,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     const verify = async () => {
-      if (!token) {
-        setIsLoading(false);
-        return;
-      }
+      if (!token) { setIsLoading(false); return; }
       try {
         const res = await fetch(`${API_BASE}/auth/me`, {
           headers: { Authorization: `Bearer ${token}` },
@@ -127,7 +128,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         },
         body: JSON.stringify({ lat, lng, city }),
       });
-      setUser(prev => (prev ? { ...prev, location: { lat, lng, city } } : prev));
+      setUser(prev => prev ? { ...prev, location: { lat, lng, city } } : prev);
     } catch (e) {
       console.error('Failed to update location', e);
     }
@@ -136,15 +137,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   return (
     <AuthContext.Provider
       value={{
-        user,
-        token,
-        isLoading,
+        user, token, isLoading,
         isAuthenticated: !!user,
-        login,
-        register,
-        logout,
-        updateLocation,
-        authFetch,
+        login, register, logout,
+        updateLocation, authFetch,
       }}
     >
       {children}

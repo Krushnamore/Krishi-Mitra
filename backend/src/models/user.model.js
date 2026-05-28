@@ -24,7 +24,11 @@ const userSchema = new mongoose.Schema({
     enum: ['farmer', 'retailer'],
     required: true,
   },
-  // Location data (stored after browser geolocation)
+  phone: {
+    type: String,
+    default: '',
+    trim: true,
+  },
   location: {
     lat: { type: Number, default: null },
     lng: { type: Number, default: null },
@@ -38,7 +42,6 @@ const userSchema = new mongoose.Schema({
   shopAddress: { type: String, default: '' },
 }, { timestamps: true });
 
-// Hash password before save
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
   const salt = await bcrypt.genSalt(12);
@@ -46,12 +49,10 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
-// Compare password
 userSchema.methods.comparePassword = async function (candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password);
 };
 
-// Strip password from JSON output
 userSchema.methods.toJSON = function () {
   const obj = this.toObject();
   delete obj.password;

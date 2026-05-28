@@ -169,72 +169,177 @@ const downloadBillsExcel = (bills: Bill[]) => {
 
 // ─── BillReceipt Modal ────────────────────────────────────────────────────────
 
-const BillReceipt = ({ bill, onClose }: { bill: Bill; onClose: () => void }) => (
-  <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
-      <div className="bg-gradient-to-r from-green-600 to-emerald-500 text-white p-6 rounded-t-2xl">
-        <div className="flex justify-between items-start">
-          <div>
-            <h2 className="text-2xl font-bold">🌾 Agri Insights Hub</h2>
-            <p className="text-green-100 text-sm mt-1">Tax Invoice / Receipt</p>
+const BillReceipt = ({ bill, onClose }: { bill: Bill; onClose: () => void }) => {
+  const handlePrint = () => {
+    const printWindow = window.open('', '_blank', 'width=420,height=600');
+    if (!printWindow) return;
+    const html = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8"/>
+  <title>Receipt - ${bill.billNumber}</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Courier New', monospace; font-size: 12px; color: #111; background: #fff; padding: 16px; max-width: 380px; margin: 0 auto; }
+    .header { text-align: center; border-bottom: 2px dashed #333; padding-bottom: 10px; margin-bottom: 10px; }
+    .header h1 { font-size: 18px; font-weight: bold; letter-spacing: 1px; }
+    .header p { font-size: 11px; color: #555; margin-top: 2px; }
+    .bill-meta { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 8px; }
+    .divider { border: none; border-top: 1px dashed #999; margin: 8px 0; }
+    .customer-row { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 8px; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    thead tr { border-bottom: 1px dashed #333; }
+    th { text-align: left; padding: 4px 2px; font-size: 11px; color: #555; font-weight: normal; }
+    th:nth-child(2), th:nth-child(3), th:nth-child(4) { text-align: right; }
+    td { padding: 5px 2px; vertical-align: top; }
+    td:nth-child(2), td:nth-child(3), td:nth-child(4) { text-align: right; }
+    tbody tr { border-bottom: 1px dotted #ddd; }
+    .total-row { display: flex; justify-content: space-between; margin-top: 10px; padding-top: 8px; border-top: 2px dashed #333; }
+    .total-label { font-size: 14px; font-weight: bold; }
+    .total-value { font-size: 16px; font-weight: bold; }
+    .footer { text-align: center; margin-top: 14px; padding-top: 10px; border-top: 1px dashed #999; font-size: 10px; color: #777; }
+    .items-count { font-size: 10px; color: #777; margin-top: 4px; }
+    @media print {
+      body { padding: 0; }
+      button { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>&#127807; Krishi Mitra</h1>
+    <p>Tax Invoice / Receipt</p>
+  </div>
+  <div class="bill-meta">
+    <span><strong>${bill.billNumber}</strong></span>
+    <span>${new Date(bill.date).toLocaleString('en-IN')}</span>
+  </div>
+  <hr class="divider"/>
+  <div class="customer-row">
+    <span>Customer: <strong>${bill.customerName || 'Walk-in Customer'}</strong></span>
+    <span>Payment: <strong>${bill.paymentMode}</strong></span>
+  </div>
+  <hr class="divider"/>
+  <table>
+    <thead>
+      <tr>
+        <th>Item</th>
+        <th>Qty</th>
+        <th>Rate</th>
+        <th>Amt</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${bill.items.map(item => `
+      <tr>
+        <td>${item.productName}</td>
+        <td>${item.quantity} ${item.unit}</td>
+        <td>&#8377;${item.costPerUnit.toFixed(2)}</td>
+        <td>&#8377;${item.subtotal.toFixed(2)}</td>
+      </tr>`).join('')}
+    </tbody>
+  </table>
+  <p class="items-count">${bill.items.length} item${bill.items.length > 1 ? 's' : ''} | ${bill.items.reduce((s,i)=>s+i.quantity,0)} total units</p>
+  <div class="total-row">
+    <span class="total-label">TOTAL</span>
+    <span class="total-value">&#8377;${bill.total.toFixed(2)}</span>
+  </div>
+  <div class="footer">
+    <p>Thank you for your business!</p>
+    <p style="margin-top:4px;">Krishi Mitra &bull; Smart Agri Platform</p>
+  </div>
+</body>
+</html>`;
+    printWindow.document.write(html);
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => { printWindow.print(); printWindow.close(); }, 400);
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-green-600 to-emerald-500 text-white p-5 rounded-t-2xl">
+          <div className="flex justify-between items-start">
+            <div>
+              <h2 className="text-xl font-bold">🌾 Krishi Mitra</h2>
+              <p className="text-green-100 text-xs mt-0.5">Tax Invoice / Receipt</p>
+            </div>
+            <button onClick={onClose} className="text-white/80 hover:text-white transition-colors">
+              <X className="h-5 w-5" />
+            </button>
           </div>
-          <button onClick={onClose} className="text-white/80 hover:text-white">
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-        <div className="mt-4 flex justify-between text-sm text-green-100">
-          <span>{bill.billNumber}</span>
-          <span>{new Date(bill.date).toLocaleString()}</span>
-        </div>
-      </div>
-
-      <div className="p-6">
-        <div className="flex justify-between text-sm text-gray-500 mb-2">
-          <span>Customer: <strong className="text-gray-800">{bill.customerName || 'Walk-in Customer'}</strong></span>
-          <span>Payment: <strong className="text-gray-800">{bill.paymentMode}</strong></span>
+          <div className="mt-3 flex justify-between text-xs text-green-100">
+            <span className="font-mono font-bold">{bill.billNumber}</span>
+            <span>{new Date(bill.date).toLocaleString('en-IN')}</span>
+          </div>
         </div>
 
-        <table className="w-full text-sm mt-4">
-          <thead>
-            <tr className="border-b border-dashed border-gray-300">
-              <th className="text-left py-2 text-gray-500">Item</th>
-              <th className="text-center py-2 text-gray-500">Qty</th>
-              <th className="text-right py-2 text-gray-500">Price</th>
-              <th className="text-right py-2 text-gray-500">Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            {bill.items.map((item, i) => (
-              <tr key={i} className="border-b border-gray-100">
-                <td className="py-2 text-gray-800">{item.productName}</td>
-                <td className="py-2 text-center text-gray-600">{item.quantity} {item.unit}</td>
-                <td className="py-2 text-right text-gray-600">₹{item.costPerUnit.toFixed(2)}</td>
-                <td className="py-2 text-right font-semibold text-gray-800">₹{item.subtotal.toFixed(2)}</td>
+        {/* Body */}
+        <div className="p-5">
+          {/* Customer + Payment */}
+          <div className="flex justify-between text-sm mb-4 pb-3 border-b border-dashed border-gray-200">
+            <span className="text-gray-500">Customer: <strong className="text-gray-800">{bill.customerName || 'Walk-in Customer'}</strong></span>
+            <span className="text-gray-500">Pay: <strong className="text-gray-800">{bill.paymentMode}</strong></span>
+          </div>
+
+          {/* Items Table */}
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-dashed border-gray-300">
+                <th className="text-left py-1.5 text-xs text-gray-500 font-medium">Item</th>
+                <th className="text-center py-1.5 text-xs text-gray-500 font-medium">Qty</th>
+                <th className="text-right py-1.5 text-xs text-gray-500 font-medium">Rate</th>
+                <th className="text-right py-1.5 text-xs text-gray-500 font-medium">Amt</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {bill.items.map((item, i) => (
+                <tr key={i} className="border-b border-gray-100">
+                  <td className="py-2 text-gray-800 font-medium">{item.productName}</td>
+                  <td className="py-2 text-center text-gray-600 text-xs">{item.quantity} {item.unit}</td>
+                  <td className="py-2 text-right text-gray-600 text-xs">₹{item.costPerUnit.toFixed(2)}</td>
+                  <td className="py-2 text-right font-semibold text-gray-800">₹{item.subtotal.toFixed(2)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
 
-        <div className="mt-4 pt-4 border-t-2 border-dashed border-gray-200 flex justify-between items-center">
-          <span className="text-lg font-bold text-gray-700">TOTAL</span>
-          <span className="text-2xl font-bold text-green-600">₹{bill.total.toFixed(2)}</span>
-        </div>
+          {/* Summary */}
+          <div className="mt-1 text-xs text-gray-400">
+            {bill.items.length} item{bill.items.length > 1 ? 's' : ''} &bull; {bill.items.reduce((s,i)=>s+i.quantity,0)} total units
+          </div>
 
-        <div className="mt-6 flex gap-3">
-          <Button
-            className="flex-1 bg-green-600 hover:bg-green-700"
-            onClick={() => window.print()}
-          >
-            <Printer className="h-4 w-4 mr-2" /> Print
-          </Button>
-          <Button variant="outline" className="flex-1" onClick={onClose}>
-            Close
-          </Button>
+          {/* Total */}
+          <div className="mt-3 pt-3 border-t-2 border-dashed border-gray-200 flex justify-between items-center">
+            <span className="text-base font-bold text-gray-700">TOTAL</span>
+            <span className="text-2xl font-bold text-green-600">₹{bill.total.toFixed(2)}</span>
+          </div>
+
+          {/* Footer note */}
+          <p className="text-center text-xs text-gray-400 mt-3">Thank you for your business!</p>
+
+          {/* Buttons */}
+          <div className="mt-4 flex gap-3">
+            <button
+              className="flex-1 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium py-2.5 rounded-xl transition-colors"
+              onClick={handlePrint}
+            >
+              <Printer className="h-4 w-4" /> Print Receipt
+            </button>
+            <button
+              className="flex-1 flex items-center justify-center gap-2 border border-border text-foreground text-sm font-medium py-2.5 rounded-xl hover:bg-secondary transition-colors"
+              onClick={onClose}
+            >
+              Close
+            </button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 // ─── BillingModal ─────────────────────────────────────────────────────────────
 

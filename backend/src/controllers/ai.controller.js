@@ -1,5 +1,6 @@
 import { ENV } from '../lib/env.js';
 import User from '../models/user.model.js';
+import Product from '../models/product.model.js';
 
 const groqChat = async (messages, systemPrompt = '') => {
   const cleaned = messages
@@ -203,5 +204,21 @@ Analyze this crop image and provide a detailed diagnosis in this EXACT JSON form
   } catch (error) {
     console.error('Crop diagnosis error:', error.message);
     res.status(500).json({ message: 'Crop diagnosis failed', error: error.message });
+  }
+};
+
+// GET /api/ai/retailer-products/:retailerId
+export const getRetailerProducts = async (req, res) => {
+  try {
+    const { retailerId } = req.params;
+
+    const products = await Product.find({ userId: retailerId, quantity: { $gt: 0 } })
+      .select('productName quantity unit costPerUnit category')
+      .sort({ productName: 1 });
+
+    res.status(200).json({ products });
+  } catch (error) {
+    console.error('Retailer products error:', error.message);
+    res.status(500).json({ message: 'Failed to fetch retailer products', error: error.message });
   }
 };

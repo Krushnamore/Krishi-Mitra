@@ -35,7 +35,7 @@ export interface MonthlyTrendData {
 }
 
 export interface Alert {
-  type: 'low_stock' | 'overstock' | 'optimal' | 'out_of_stock' | 'expiring';
+  type: 'low_stock' | 'overstock' | 'optimal' | 'out_of_stock' | 'expiring' | 'expired';
   productName: string;
   currentStock: number;
   message: string;
@@ -105,12 +105,15 @@ export const getMonthlyTrend = async (token: string): Promise<MonthlyTrendData[]
 export const generateAlerts = (products: Product[]): Alert[] => {
   const alerts: Alert[] = [];
   const now = new Date();
+  // Strip time — compare dates only
+  now.setHours(0, 0, 0, 0);
   const fiveDaysFromNow = new Date(now.getTime() + 5 * 24 * 60 * 60 * 1000);
 
   products.forEach(product => {
-    const minStock = product.minStockLevel || 10;
-    const maxStock = product.maxStockLevel || 1000;
+    const minStock = product.minStockLevel ?? 10;
+    const maxStock = product.maxStockLevel ?? 1000;
 
+    // ── 1. Out of stock (highest priority, skip other checks) ──
     if (product.quantity === 0) {
       alerts.push({
         type: 'out_of_stock',
@@ -119,26 +122,49 @@ export const generateAlerts = (products: Product[]): Alert[] => {
         message: 'Out of stock! Immediate reorder required.',
         minStockLevel: minStock,
       });
-      return;
+      return; // skip further checks for this product
     }
+
+    // ── 2. Expiry checks (run regardless of stock level) ──
     if (product.expiryDate) {
       const exp = new Date(product.expiryDate);
-      if (exp >= now && exp <= fiveDaysFromNow) {
+      exp.setHours(0, 0, 0, 0); // normalize to date only
+
+      if (exp < now) {
+        // Already expired
+        alerts.push({
+          type: 'expired',
+          productName: product.productName,
+          currentStock: product.quantity,
+          message: `Expired on ${exp.toLocaleDateString('en-IN')}! Remove from shelf immediately.`,
+          expiryDate: product.expiryDate,
+        });
+        return; // expired products skip stock level checks
+      }
+
+      if (exp <= fiveDaysFromNow) {
+        // Expiring within 5 days
+        const daysLeft = Math.ceil((exp.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
         alerts.push({
           type: 'expiring',
           productName: product.productName,
           currentStock: product.quantity,
-          message: 'Expiring within 5 days!',
+          message: daysLeft === 0
+            ? 'Expires TODAY! Sell or remove immediately.'
+            : `Expires in ${daysLeft} day${daysLeft > 1 ? 's' : ''} — sell quickly!`,
           expiryDate: product.expiryDate,
         });
+        // Don't return — also check stock level below
       }
     }
+
+    // ── 3. Stock level checks ──
     if (product.quantity <= minStock) {
       alerts.push({
         type: 'low_stock',
         productName: product.productName,
         currentStock: product.quantity,
-        message: `Stock critically low. Reorder ${minStock * 2 - product.quantity}+ units.`,
+        message: `Stock critically low (${product.quantity} left). Reorder ${minStock * 2 - product.quantity}+ units.`,
         minStockLevel: minStock,
       });
     } else if (product.quantity >= maxStock) {
@@ -160,5 +186,12 @@ export const generateAlerts = (products: Product[]): Alert[] => {
       });
     }
   });
+
+  // Sort: expired → expiring → out_of_stock → low_stock → overstock → optimal
+  const priority: Record<string, number> = {
+    expired: 0, expiring: 1, out_of_stock: 2, low_stock: 3, overstock: 4, optimal: 5,
+  };
+  alerts.sort((a, b) => (priority[a.type] ?? 9) - (priority[b.type] ?? 9));
+
   return alerts;
 };

@@ -64,7 +64,7 @@ export const Footer = () => {
 
               {/* Share Website */}
               <a
-                href="https://media1.tenor.com/m/ODepiYMYFT0AAAAd/andha-hai-kya-loveday-andha-hai-kya-lavde.gif"
+                href="https://janvani-voice-of-people.vercel.app/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2 rounded-lg bg-primary/20 hover:bg-primary/30 transition-colors"

@@ -46,7 +46,7 @@ export const Footer = () => {
             <div className="flex gap-3">
               {/* GitHub */}
               <a
-                href="https://github.com/sarthak98-source/agri-insights-hub"
+                href="https://github.com/Krushnamore/Krishi-Mitra"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2 rounded-lg bg-primary/20 hover:bg-primary/30 transition-colors"

@@ -12,7 +12,6 @@ import About from "./pages/About";
 import Inventory from "./pages/Inventory";
 import Alerts from "./pages/Alerts";
 import Weather from "./pages/Weather";
-import DemandPrediction from "./pages/DemandPrediction";
 import FarmerChatbot from "./pages/FarmerChatbot";
 import YojnaSchemes from "./pages/YojnaSchemes";
 import NearbyRetailers from "./pages/NearbyRetailers";
@@ -54,22 +53,26 @@ const PublicRoute = ({ children }: { children: React.ReactNode }) => {
 
 const AppRoutes = () => (
   <Routes>
+    {/* Public */}
     <Route path="/" element={<PublicRoute><Index /></PublicRoute>} />
     <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
     <Route path="/about" element={<About />} />
 
+    {/* Protected: both roles */}
     <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
     <Route path="/weather" element={<ProtectedRoute><Weather /></ProtectedRoute>} />
 
+    {/* Protected: retailer only */}
     <Route path="/inventory" element={<ProtectedRoute requiredRole="retailer"><Inventory /></ProtectedRoute>} />
     <Route path="/alerts" element={<ProtectedRoute requiredRole="retailer"><Alerts /></ProtectedRoute>} />
-    <Route path="/demand-prediction" element={<ProtectedRoute requiredRole="retailer"><DemandPrediction /></ProtectedRoute>} />
 
+    {/* Protected: farmer only */}
     <Route path="/farmer/chatbot" element={<ProtectedRoute requiredRole="farmer"><FarmerChatbot /></ProtectedRoute>} />
     <Route path="/farmer/yojna" element={<ProtectedRoute requiredRole="farmer"><YojnaSchemes /></ProtectedRoute>} />
     <Route path="/farmer/retailers" element={<ProtectedRoute requiredRole="farmer"><NearbyRetailers /></ProtectedRoute>} />
     <Route path="/farmer/crop-diagnosis" element={<ProtectedRoute requiredRole="farmer"><CropDiagnosis /></ProtectedRoute>} />
 
+    {/* 404 */}
     <Route path="*" element={<NotFound />} />
   </Routes>
 );

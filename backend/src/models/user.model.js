@@ -2,33 +2,11 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
 const userSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-    trim: true,
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    lowercase: true,
-    trim: true,
-  },
-  password: {
-    type: String,
-    required: true,
-    minlength: 6,
-  },
-  role: {
-    type: String,
-    enum: ['farmer', 'retailer'],
-    required: true,
-  },
-  phone: {
-    type: String,
-    default: '',
-    trim: true,
-  },
+  name: { type: String, required: true, trim: true },
+  email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+  password: { type: String, required: true, minlength: 6 },
+  role: { type: String, enum: ['farmer', 'retailer'], required: true },
+  phone: { type: String, default: '', trim: true },
   location: {
     lat: { type: Number, default: null },
     lng: { type: Number, default: null },
@@ -40,6 +18,9 @@ const userSchema = new mongoose.Schema({
   // Retailer-specific
   shopName: { type: String, default: '' },
   shopAddress: { type: String, default: '' },
+  // Password reset
+  resetPasswordToken: { type: String, default: undefined },
+  resetPasswordExpiry: { type: Date, default: undefined },
 }, { timestamps: true });
 
 userSchema.pre('save', async function (next) {
@@ -56,6 +37,8 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
 userSchema.methods.toJSON = function () {
   const obj = this.toObject();
   delete obj.password;
+  delete obj.resetPasswordToken;
+  delete obj.resetPasswordExpiry;
   return obj;
 };
 

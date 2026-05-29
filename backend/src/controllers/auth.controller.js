@@ -133,41 +133,34 @@ export const forgotPassword = async (req, res) => {
       resetPasswordExpiry: otpExpiry,
     });
 
-    // Send OTP via email
-    const emailConfigured = ENV.EMAIL_USER && ENV.EMAIL_PASS;
-
-    if (emailConfigured) {
-      try {
-        await sendOTPEmail(user.email, otp, user.name);
-        console.log(`✅ OTP email sent to ${user.email}`);
-      } catch (emailError) {
-        console.error('❌ Email send failed:', emailError.message);
-        // Still return success but warn
-        return res.status(200).json({
-          message: 'OTP generated but email delivery failed. Check server email config.',
-          emailError: emailError.message,
-          // Expose OTP as fallback
-          otp,
+    // ✅ Always try to send email — use process.env directly (most reliable on Render)
+    try {
+      await sendOTPEmail(user.email, otp, user.name);
+      console.log(`✅ OTP email sent to ${user.email}`);
+    } catch (emailError) {
+      console.error('❌ Email send failed:', emailError.message);
+      // ✅ In production, don't expose OTP — tell user to check spam or retry
+      if (ENV.NODE_ENV === 'production') {
+        return res.status(500).json({
+          message: 'Failed to send OTP email. Please try again in a moment.',
         });
       }
+      // In development only — expose OTP as fallback
+      return res.status(200).json({
+        message: 'Email delivery failed in dev mode.',
+        otp, // ⚠️ dev only
+        note: 'Email failed — use this OTP directly',
+      });
     }
 
-    const response = {
-      message: emailConfigured
-        ? `OTP sent to ${user.email}. Check your inbox (and spam folder).`
-        : 'Email not configured on server.',
+    // ✅ Success — never send OTP in response in production
+    res.status(200).json({
+      message: `OTP sent to ${user.email}. Check your inbox and spam folder.`,
       email: user.email,
-    };
+      // ⚠️ dev only — remove otp from response in production
+      ...(ENV.NODE_ENV === 'development' && { otp, note: 'Dev mode: OTP shown here' }),
+    });
 
-    // Always expose OTP in development, also expose if email not configured
-    if (ENV.NODE_ENV === 'development' || !emailConfigured) {
-      response.otp = otp;
-      response.note = emailConfigured
-        ? 'Dev mode: OTP shown here'
-        : 'Email not configured — copy OTP from here';
-    }
-
-    res.status(200).json(response);
   } catch (error) {
     console.error('Forgot password error:', error);
     res.status(500).json({ message: 'Failed to generate reset OTP', error: error.message });

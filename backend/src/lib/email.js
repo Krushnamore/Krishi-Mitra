@@ -1,66 +1,42 @@
-import nodemailer from 'nodemailer';
+import sgMail from '@sendgrid/mail';
 
-let transporter = null;
+// ✅ Set API key once at module load
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-function createTransporter() {
-  return nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465,        // ✅ port 465 (SSL) works on Render — 587 is blocked
-    secure: true,     // ✅ true for port 465
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,  // Gmail App Password
-    },
-    tls: {
-      rejectUnauthorized: false,
-    },
-  });
-}
+const FROM = process.env.EMAIL_FROM || 'Krishi Mitra <more96899@gmail.com>';
 
 export async function verifyEmailConfig() {
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-    console.warn('⚠️  Email service not configured: EMAIL_USER or EMAIL_PASS missing');
+  if (!process.env.SENDGRID_API_KEY) {
+    console.warn('⚠️  Email not configured: SENDGRID_API_KEY missing');
     return false;
   }
-
-  try {
-    transporter = createTransporter();
-    await transporter.verify();
-    console.log('✅ Email service configured (Gmail SMTP)');
-    return true;
-  } catch (error) {
-    console.warn('⚠️  Email service not configured:', error.message);
-    transporter = null;
-    return false;
-  }
+  console.log('✅ Email service configured (SendGrid)');
+  return true;
 }
 
 export async function sendEmail({ to, subject, html, text }) {
-  if (!transporter) {
-    transporter = createTransporter();
-  }
-
-  const from = process.env.EMAIL_FROM || `Krishi Mitra <${process.env.EMAIL_USER}>`;
-
-  await transporter.sendMail({ from, to, subject, html, text });
+  await sgMail.send({ to, from: FROM, subject, html, text });
   console.log('✅ Email sent to', to);
 }
 
-export async function sendOTPEmail(to, otp) {
+export async function sendOTPEmail(to, otp, name) {
   return sendEmail({
     to,
-    subject: 'Krishi Mitra — Your Verification Code',
+    subject: 'Krishi Mitra — Your Password Reset OTP',
     html: `
       <div style="font-family:sans-serif;max-width:480px;margin:auto;padding:32px;border:1px solid #e5e7eb;border-radius:12px;">
         <h2 style="color:#16a34a;">🌾 Krishi Mitra</h2>
-        <p>Your one-time verification code is:</p>
-        <div style="font-size:36px;font-weight:bold;letter-spacing:8px;color:#15803d;text-align:center;padding:24px 0;">
+        <p>Hello <strong>${name || ''}</strong>,</p>
+        <p>Your password reset OTP is:</p>
+        <div style="font-size:40px;font-weight:bold;letter-spacing:10px;color:#15803d;text-align:center;padding:24px 0;">
           ${otp}
         </div>
-        <p style="color:#6b7280;font-size:13px;">This code expires in 10 minutes. Do not share it with anyone.</p>
+        <p style="color:#6b7280;font-size:13px;">This OTP expires in 15 minutes. Do not share it with anyone.</p>
+        <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0;"/>
+        <p style="color:#9ca3af;font-size:12px;">If you did not request this, ignore this email.</p>
       </div>
     `,
-    text: `Your Krishi Mitra OTP is: ${otp}. Expires in 10 minutes.`,
+    text: `Your Krishi Mitra OTP is: ${otp}. Expires in 15 minutes.`,
   });
 }
 

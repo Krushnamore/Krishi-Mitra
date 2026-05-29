@@ -1,7 +1,26 @@
-import { Leaf, Github, Mail, ExternalLink } from 'lucide-react';
+import { Leaf, Github, Mail, Share2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export const Footer = () => {
+  const handleShare = async () => {
+    if (navigator.share) {
+      // ✅ Native share sheet (mobile + modern desktop)
+      try {
+        await navigator.share({
+          title: 'Krishi Mitra — Smart Agri',
+          text: 'AI-powered inventory management and demand forecasting for sustainable agriculture.',
+          url: 'https://krishi-mitra-beryl.vercel.app',
+        });
+      } catch (err) {
+        // User cancelled share — do nothing
+      }
+    } else {
+      // ✅ Fallback for browsers that don't support Web Share API — copy to clipboard
+      await navigator.clipboard.writeText('https://krishi-mitra-beryl.vercel.app');
+      alert('Link copied to clipboard!');
+    }
+  };
+
   return (
     <footer className="bg-foreground text-primary-foreground mt-auto">
       <div className="container mx-auto px-4 py-12">
@@ -26,7 +45,6 @@ export const Footer = () => {
               <li><Link to="/dashboard" className="hover:opacity-100 transition-opacity">Dashboard</Link></li>
               <li><Link to="/" className="hover:opacity-100 transition-opacity">AI Suggestion</Link></li>
               <li><Link to="/about" className="hover:opacity-100 transition-opacity">Inventory Managment</Link></li>
-
             </ul>
           </div>
 
@@ -40,7 +58,7 @@ export const Footer = () => {
             </ul>
           </div>
 
-          {/* Contact */}
+          {/* Connect */}
           <div>
             <h4 className="font-semibold mb-4">Connect</h4>
             <div className="flex gap-3">
@@ -50,6 +68,7 @@ export const Footer = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2 rounded-lg bg-primary/20 hover:bg-primary/30 transition-colors"
+                title="GitHub"
               >
                 <Github className="h-5 w-5" />
               </a>
@@ -58,30 +77,25 @@ export const Footer = () => {
               <a
                 href="mailto:more96899@gmail.com"
                 className="p-2 rounded-lg bg-primary/20 hover:bg-primary/30 transition-colors"
+                title="Email us"
               >
                 <Mail className="h-5 w-5" />
               </a>
 
-              {/* Share Website */}
-              <a
-                href="https://janvani-voice-of-people.vercel.app/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2 rounded-lg bg-primary/20 hover:bg-primary/30 transition-colors"
+              {/* Share button — opens native share sheet */}
+              <button
+                onClick={handleShare}
+                className="p-2 rounded-lg bg-primary/20 hover:bg-primary/30 transition-colors cursor-pointer"
+                title="Share Krishi Mitra"
               >
-                <ExternalLink className="h-5 w-5" />
-              </a>
+                <Share2 className="h-5 w-5" />
+              </button>
             </div>
           </div>
         </div>
 
-
-
-
-
-
         <div className="mt-8 pt-8 border-t border-primary-foreground/20 text-center text-sm opacity-60">
-          <p>© 2026 Smart Agri-Input Inventory System. All rights reserved by Shela Gang. Built for PRPCERM Hackathon </p>
+          <p>© 2026 Smart Agri-Input Inventory System. All rights reserved by Shela Gang. Built for PRPCERM Hackathon</p>
           <p className="mt-1">Powered by AI • Industry 5.0 • AI-Assisted Decision Making</p>
         </div>
       </div>

@@ -56,15 +56,26 @@ app.use((err, req, res, next) => {
 });
 
 const startServer = async () => {
+  // ✅ START LISTENING FIRST — Render must detect the port immediately
+  // If we await DB before listen(), Render times out with "No open ports detected"
+  app.listen(ENV.PORT, '0.0.0.0', () => {
+    console.log(`✅ Server on port ${ENV.PORT} | env: ${ENV.NODE_ENV}`);
+  });
+
+  // Connect to MongoDB after server is already listening
   try {
     await connectDB();
-    await verifyEmailConfig();
-    app.listen(ENV.PORT, '0.0.0.0', () => {
-      console.log(`✅ Server on port ${ENV.PORT} | env: ${ENV.NODE_ENV}`);
-    });
   } catch (error) {
-    console.error('❌ Failed to start:', error.message);
-    process.exit(1);
+    console.error('❌ MongoDB failed to connect:', error.message);
+    // Don't exit — server is still running, DB may recover
+  }
+
+  // Verify email config after server is already listening
+  try {
+    await verifyEmailConfig();
+  } catch (error) {
+    console.warn('⚠️ Email config warning:', error.message);
+    // Don't exit — email is non-critical for server to run
   }
 };
 

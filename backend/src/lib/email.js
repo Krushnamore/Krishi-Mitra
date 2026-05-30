@@ -1,79 +1,136 @@
-import sgMail from '@sendgrid/mail';
+import nodemailer from "nodemailer";
+import dotenv from "dotenv";
 
-// ✅ Set API key once at module load
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+dotenv.config();
 
-const FROM = process.env.EMAIL_FROM || 'Krishi Mitra <more96899@gmail.com>';
+// Create transporter
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
 
-export async function verifyEmailConfig() {
-  if (!process.env.SENDGRID_API_KEY) {
-    console.warn('⚠️  Email not configured: SENDGRID_API_KEY missing');
-    return false;
+// Verify SMTP connection
+export const verifyEmailConfig = async () => {
+  try {
+    await transporter.verify();
+    console.log("✅ Email service ready");
+  } catch (error) {
+    console.error("❌ SMTP Error:", error);
   }
-  console.log('✅ Email service configured (SendGrid)');
-  return true;
-}
+};
 
-export async function sendEmail({ to, subject, html, text }) {
-  await sgMail.send({ to, from: FROM, subject, html, text });
-  console.log('✅ Email sent to', to);
-}
+// Send OTP Email
+export const sendOTPEmail = async (toEmail, otp, userName = "") => {
+  try {
+    const mailOptions = {
+      from:
+        process.env.EMAIL_FROM ||
+        `Krishi Mitra <${process.env.EMAIL_USER}>`,
+      to: toEmail,
+      subject: "Krishi Mitra - Password Reset OTP",
+      html: `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8" />
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+          }
+          .container {
+            max-width: 500px;
+            margin: auto;
+            background: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+          }
+          .header {
+            background: #16a34a;
+            color: white;
+            text-align: center;
+            padding: 25px;
+          }
+          .content {
+            padding: 25px;
+          }
+          .otp-box {
+            text-align: center;
+            background: #f0fdf4;
+            border: 2px dashed #16a34a;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+          }
+          .otp {
+            font-size: 36px;
+            font-weight: bold;
+            color: #16a34a;
+            letter-spacing: 8px;
+          }
+          .footer {
+            text-align: center;
+            padding: 15px;
+            font-size: 12px;
+            color: #666;
+            background: #f9fafb;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h2>🌾 Krishi Mitra</h2>
+            <p>Password Reset Request</p>
+          </div>
 
-export async function sendOTPEmail(to, otp, name) {
-  return sendEmail({
-    to,
-    subject: 'Krishi Mitra — Your Password Reset OTP',
-    html: `
-      <div style="font-family:sans-serif;max-width:480px;margin:auto;padding:32px;border:1px solid #e5e7eb;border-radius:12px;">
-        <h2 style="color:#16a34a;">🌾 Krishi Mitra</h2>
-        <p>Hello <strong>${name || ''}</strong>,</p>
-        <p>Your password reset OTP is:</p>
-        <div style="font-size:40px;font-weight:bold;letter-spacing:10px;color:#15803d;text-align:center;padding:24px 0;">
-          ${otp}
+          <div class="content">
+            <p>Hello ${
+              userName ? `<strong>${userName}</strong>` : "User"
+            },</p>
+
+            <p>Use the OTP below to reset your password:</p>
+
+            <div class="otp-box">
+              <div class="otp">${otp}</div>
+              <p>Expires in 15 minutes</p>
+            </div>
+
+            <p>
+              If you did not request a password reset, you can safely ignore
+              this email.
+            </p>
+          </div>
+
+          <div class="footer">
+            © ${new Date().getFullYear()} Krishi Mitra
+          </div>
         </div>
-        <p style="color:#6b7280;font-size:13px;">This OTP expires in 15 minutes. Do not share it with anyone.</p>
-        <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0;"/>
-        <p style="color:#9ca3af;font-size:12px;">If you did not request this, ignore this email.</p>
-      </div>
-    `,
-    text: `Your Krishi Mitra OTP is: ${otp}. Expires in 15 minutes.`,
-  });
-}
+      </body>
+      </html>
+      `,
+    };
 
-export async function sendWelcomeEmail(to, name, role) {
-  return sendEmail({
-    to,
-    subject: 'Welcome to Krishi Mitra!',
-    html: `
-      <div style="font-family:sans-serif;max-width:480px;margin:auto;padding:32px;border:1px solid #e5e7eb;border-radius:12px;">
-        <h2 style="color:#16a34a;">🌾 Welcome, ${name}!</h2>
-        <p>Your <strong>${role}</strong> account has been created successfully.</p>
-        <a href="${process.env.FRONTEND_URL || 'https://krishi-mitra-beryl.vercel.app'}/login"
-           style="display:inline-block;margin-top:16px;padding:12px 24px;background:#16a34a;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;">
-          Go to Dashboard →
-        </a>
-      </div>
-    `,
-    text: `Welcome to Krishi Mitra, ${name}! Your ${role} account is ready.`,
-  });
-}
+    const info = await transporter.sendMail(mailOptions);
 
-export async function sendPasswordResetEmail(to, resetToken) {
-  const url = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
-  return sendEmail({
-    to,
-    subject: 'Krishi Mitra — Reset Your Password',
-    html: `
-      <div style="font-family:sans-serif;max-width:480px;margin:auto;padding:32px;border:1px solid #e5e7eb;border-radius:12px;">
-        <h2 style="color:#16a34a;">🌾 Reset Your Password</h2>
-        <p>Click the button below to reset your password.</p>
-        <a href="${url}"
-           style="display:inline-block;margin-top:16px;padding:12px 24px;background:#16a34a;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;">
-          Reset Password →
-        </a>
-        <p style="color:#6b7280;font-size:13px;margin-top:16px;">This link expires in 1 hour.</p>
-      </div>
-    `,
-    text: `Reset your Krishi Mitra password: ${url}`,
-  });
-}
+    console.log("✅ Email sent:", info.messageId);
+
+    return {
+      success: true,
+      messageId: info.messageId,
+    };
+  } catch (error) {
+    console.error("❌ Email sending failed:", error);
+
+    return {
+      success: false,
+      error: error.message,
+    };
+  }
+};

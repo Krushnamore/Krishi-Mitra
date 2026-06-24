@@ -13,8 +13,9 @@ export default defineConfig({
     port: 8081,
     proxy: {
       '/api': {
-        target: 'http://localhost:5000',
+        target: 'http://localhost:5000', // Must match the backend PORT
         changeOrigin: true,
+        secure: false, // Useful if you have SSL issues locally
       }
     }
   },

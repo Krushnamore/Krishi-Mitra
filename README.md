@@ -4,17 +4,17 @@ A complete upgrade of the Agri Insights Hub with JWT authentication, role-based 
 
 ---
 
-## What Changed from v1
+## What is basic structure
 
-| Feature | v1 (Clerk) | v2 (JWT) |
+| Feature | v2 (JWT) |
 |---|---|---|
-| Authentication | Clerk (3rd-party SaaS) | Custom JWT (bcrypt + jsonwebtoken) |
-| Roles | None | Farmer / Retailer |
-| Farmer Dashboard | N/A | Weather, AI Chatbot, Yojna Schemes, Nearby Retailers |
-| Retailer Dashboard | Single dashboard | Inventory, Alerts, Demand Prediction, Charts |
-| Geolocation | None | Browser geolocation → reverse geocode via Nominatim |
-| AI | None | Groq (llama3-8b-8192) for chatbot + scheme fetching |
-| Backend | Node.js + MongoDB | Node.js + MongoDB + JWT middleware |
+| Authentication  | Custom JWT (bcrypt + jsonwebtoken) |
+| Roles |Farmer / Retailer |
+| Farmer Dashboard | Weather, AI Chatbot, Yojna Schemes, Nearby Retailers |
+| Retailer Dashboard | Inventory, Alerts, Demand Prediction, Charts |
+| Geolocation | Browser geolocation → reverse geocode via Nominatim |
+| AI | Groq (llama3-8b-8192) for chatbot + scheme fetching |
+| Backend | Node.js + MongoDB + JWT middleware |
 
 ---
 

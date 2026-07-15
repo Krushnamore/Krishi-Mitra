@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import type { ElementType } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   Menu, X, Leaf, Info, Package, AlertTriangle, Cloud,
@@ -8,7 +9,13 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext';
 
-const farmerNavLinks = [
+interface NavLinkConfig {
+  path: string;
+  label: string;
+  icon: ElementType;
+}
+
+const farmerNavLinks: NavLinkConfig[] = [
   { path: '/dashboard', label: 'Dashboard', icon: Leaf },
   { path: '/weather', label: 'Weather', icon: Cloud },
   { path: '/farmer/chatbot', label: 'AI Chatbot', icon: MessageSquare },
@@ -17,13 +24,13 @@ const farmerNavLinks = [
   { path: '/farmer/retailers', label: 'Nearby Retailers', icon: Store },
 ];
 
-const retailerNavLinks = [
+const retailerNavLinks: NavLinkConfig[] = [
   { path: '/dashboard', label: 'Dashboard', icon: Leaf },
   { path: '/inventory', label: 'Inventory', icon: Package },
   { path: '/alerts', label: 'Alerts', icon: AlertTriangle },
 ];
 
-const publicNavLinks = [
+const publicNavLinks: NavLinkConfig[] = [
   { path: '/', label: 'Home', icon: Leaf },
   { path: '/about', label: 'About', icon: Info },
 ];
@@ -44,7 +51,7 @@ export const Navbar = () => {
     setIsOpen(false);
   };
 
-  const renderLink = (link: any, onClick?: () => void) => {
+  const renderLink = (link: NavLinkConfig, onClick?: () => void) => {
     const Icon = link.icon;
     const active = location.pathname === link.path;
     return (

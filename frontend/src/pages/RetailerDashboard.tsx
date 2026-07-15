@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import type { ElementType } from 'react';
 import { Layout } from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
@@ -21,6 +22,13 @@ const IndianRupee = ({ className = 'h-4 w-4' }: { className?: string }) => (
     <path d="M6 13l8.5 8" /><path d="M6 13h6.5a3.5 3.5 0 1 0 0-7H6" />
   </svg>
 );
+
+interface TrendData {
+  month: string;
+  products: number;
+  quantity: number;
+  value: number;
+}
 
 const RetailerDashboard = () => {
   const { user, token } = useAuth();
@@ -60,13 +68,13 @@ const RetailerDashboard = () => {
   })), [products, chartFilter]);
 
   const monthlyTrendData = useMemo(() => {
-    const map = new Map<string, any>();
+    const map = new Map<string, TrendData>();
     products.forEach(p => {
       if (!p.createdAt) return;
       const d = new Date(p.createdAt);
       const key = d.toISOString().slice(0, 7);
       if (!map.has(key)) map.set(key, { month: d.toLocaleString('en', { month: 'short' }), products: 0, quantity: 0, value: 0 });
-      const m = map.get(key);
+      const m = map.get(key)!;
       m.products++; m.quantity += p.quantity; m.value += p.quantity * (p.costPerUnit || 0);
     });
     return Array.from(map.values()).slice(-6);
@@ -78,7 +86,7 @@ const RetailerDashboard = () => {
     { icon: AlertTriangle, label: 'Low Stock', value: stats.lowStock, color: 'text-yellow-600', bg: 'bg-yellow-50' },
     { icon: XCircle, label: 'Out of Stock', value: stats.outOfStock, color: 'text-red-600', bg: 'bg-red-50' },
     { icon: AlertCircle, label: 'Overstocked', value: stats.overStock, color: 'text-orange-600', bg: 'bg-orange-50' },
-    { icon: IndianRupee as any, label: 'Stock Value (₹)', value: stats.totalStockValue.toLocaleString('en-IN'), color: 'text-purple-600', bg: 'bg-purple-50' },
+    { icon: IndianRupee as ElementType, label: 'Stock Value (₹)', value: stats.totalStockValue.toLocaleString('en-IN'), color: 'text-purple-600', bg: 'bg-purple-50' },
   ];
 
   return (

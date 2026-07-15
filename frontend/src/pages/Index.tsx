@@ -44,7 +44,7 @@ const Index = () => {
             </div>
 
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-primary-foreground mb-6 animate-slide-up">
-              Krishi-mitra-Input Inventory &{' '}
+              Smart-argi-Input Inventory &{' '}
               <span className="text-primary">Demand Forecasting</span>
             </h1>
 

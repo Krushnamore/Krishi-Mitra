@@ -63,7 +63,8 @@ const Login = () => {
         navigate('/dashboard');
       }
     } catch (err: unknown) {
-      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+      const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
+      toast({ title: 'Error', description: errorMessage, variant: 'destructive' });
     }
     setIsLoading(false);
   };
@@ -89,8 +90,9 @@ const Login = () => {
           : 'Check your email for the OTP.',
       });
       setMode('reset');
-    } catch (err: any) {
-      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
+      toast({ title: 'Error', description: errorMessage, variant: 'destructive' });
     }
     setIsLoading(false);
   };
@@ -120,8 +122,9 @@ const Login = () => {
       setMode('login');
       setResetForm({ otp: '', newPassword: '', confirmPassword: '' });
       setResetEmail('');
-    } catch (err: any) {
-      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
+      toast({ title: 'Error', description: errorMessage, variant: 'destructive' });
     }
     setIsLoading(false);
   };

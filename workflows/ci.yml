@@ -1,0 +1,82 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend-ci:
+    name: Backend (lint + smoke test)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      NODE_ENV: development
+      MONGODB_URI: "mongodb://localhost:27017/agri_insights_ci"
+      JWT_SECRET: "ci-only-placeholder-secret"
+      JWT_EXPIRES_IN: "7d"
+      GROQ_API_KEY: "ci-placeholder-key"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Remove this step if backend/package.json has no "lint" script
+      - name: Lint
+        run: npm run lint --if-present
+
+      - name: Smoke test — app boots without throwing
+        run: node -e "require('./src/server'); console.log('server.js loaded OK')"
+
+  frontend-ci:
+    name: Frontend (lint + build)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint --if-present
+
+      - name: Build
+        run: npm run build
+
+  deploy:
+    name: Deploy (Vercel)
+    needs: [backend-ci, frontend-ci]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Vercel deploy
+        run: |
+          curl -sf -X POST "${{ secrets.VERCEL_DEPLOY_HOOK }}" \
+            && echo "Vercel deploy triggered" \
+            || (echo "Vercel deploy hook failed" && exit 1)
+
+      # Uncomment if backend is hosted on Render (or another PaaS with a deploy hook)
+      # - name: Trigger backend deploy
+      #   run: |
+      #     curl -sf -X POST "${{ secrets.BACKEND_DEPLOY_HOOK }}" \
+      #       && echo "Backend deploy triggered" \
+      #       || (echo "Backend deploy hook failed" && exit 1)

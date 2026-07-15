@@ -114,7 +114,7 @@ const CropDiagnosis = () => {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || data.message || 'Analysis failed');
       setResult(data.diagnosis);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.message || 'Failed to analyze image. Please try again.');
       toast({ title: 'Analysis Failed', description: err.message, variant: 'destructive' });
     }

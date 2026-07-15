@@ -61,7 +61,7 @@ const FarmerChatbot = () => {
       const assistantMsg: Message = { role: 'assistant', content: data.reply };
       setMessages(prev => [...prev, assistantMsg]);
       setApiHistory(prev => [...prev, assistantMsg]);
-    } catch (e: any) {
+    } catch (e: unknown) {
       setMessages(prev => [...prev, {
         role: 'assistant',
         content: `Sorry, I'm having trouble connecting. ${e.message || 'Please try again.'}`,

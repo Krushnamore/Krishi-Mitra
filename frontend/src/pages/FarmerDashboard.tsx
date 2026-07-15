@@ -15,9 +15,9 @@ const OWM_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY || '';
 const FarmerDashboard = () => {
   const { user, token, updateLocation } = useAuth();
   const geo = useGeolocation();
-  const [weather, setWeather] = useState<any>(null);
+  const [weather, setWeather] = useState<unknown>(null);
   const [weatherLoading, setWeatherLoading] = useState(false);
-  const [retailers, setRetailers] = useState<any[]>([]);
+  const [retailers, setRetailers] = useState<unknown[]>([]);
   const [retailersLoading, setRetailersLoading] = useState(false);
 
   useEffect(() => {

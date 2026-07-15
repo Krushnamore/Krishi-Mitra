@@ -62,7 +62,7 @@ const Login = () => {
         });
         navigate('/dashboard');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       toast({ title: 'Error', description: err.message, variant: 'destructive' });
     }
     setIsLoading(false);

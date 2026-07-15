@@ -135,7 +135,7 @@ const downloadBillsExcel = (bills: Bill[]) => {
     'Product', 'Qty', 'Unit Price (₹)', 'Subtotal (₹)', 'Bill Total (₹)'
   ];
 
-  const rows: any[] = [];
+  const rows: unknown[] = [];
   bills.forEach(bill => {
     bill.items.forEach((item, idx) => {
       rows.push([
@@ -153,7 +153,7 @@ const downloadBillsExcel = (bills: Bill[]) => {
   });
 
   const csvContent = [headers, ...rows]
-    .map(row => row.map((cell: any) => `"${cell}"`).join(','))
+    .map(row => row.map((cell: unknown) => `"${cell}"`).join(','))
     .join('\n');
 
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });

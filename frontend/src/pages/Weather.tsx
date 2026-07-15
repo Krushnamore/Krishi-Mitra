@@ -38,6 +38,22 @@ interface ForecastDay {
   rain: number;
 }
 
+interface ForecastItem {
+  dt_txt: string;
+  main: {
+    temp: number;
+    humidity: number;
+  };
+  weather: {
+    description: string;
+    icon: string;
+  }[];
+  wind: {
+    speed: number;
+  };
+  pop?: number;
+}
+
 const Weather = () => {
   const geo = useGeolocation();
   const [current, setCurrent] = useState<CurrentWeather | null>(null);
@@ -82,8 +98,8 @@ const Weather = () => {
       const forecastData = await forecastRes.json();
 
       // Group by day — take noon reading or first available
-      const dayMap: Record<string, any[]> = {};
-      forecastData.list.forEach((item: any) => {
+      const dayMap: Record<string, ForecastItem[]> = {};
+      forecastData.list.forEach((item: ForecastItem) => {
         const date = item.dt_txt.split(' ')[0];
         if (!dayMap[date]) dayMap[date] = [];
         dayMap[date].push(item);
@@ -109,8 +125,8 @@ const Weather = () => {
         });
 
       setForecast(days);
-    } catch (e: any) {
-      setError(e.message || 'Failed to fetch weather data');
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Failed to fetch weather data');
     }
     setLoading(false);
   };

@@ -63,7 +63,7 @@ jobs:
         run: npm run build
 
   deploy:
-    name: Deploy (Vercel)
+    name: Deploy (Vercel & Render)
     needs: [backend-ci, frontend-ci]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
@@ -74,9 +74,8 @@ jobs:
             && echo "Vercel deploy triggered" \
             || (echo "Vercel deploy hook failed" && exit 1)
 
-      # Uncomment if backend is hosted on Render (or another PaaS with a deploy hook)
-      # - name: Trigger backend deploy
-      #   run: |
-      #     curl -sf -X POST "${{ secrets.BACKEND_DEPLOY_HOOK }}" \
-      #       && echo "Backend deploy triggered" \
-      #       || (echo "Backend deploy hook failed" && exit 1)
+      - name: Trigger backend deploy
+        run: |
+          curl -sf -X POST "${{ secrets.BACKEND_DEPLOY_HOOK }}" \
+            && echo "Backend deploy triggered" \
+            || (echo "Backend deploy hook failed" && exit 1)

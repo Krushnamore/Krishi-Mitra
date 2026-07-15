@@ -44,8 +44,15 @@ jobs:
       - name: Lint
         run: npm run lint --if-present
 
-      - name: Smoke test — app boots without throwing
-        run: node -e "require('./src/server'); console.log('server.js loaded OK')"
+      - name: Smoke test — app boots and exits cleanly
+        run: |
+          node -e "
+            setTimeout(() => {
+              console.log('✅ Smoke test passed: Server initialized successfully without throwing errors!');
+              process.exit(0);
+            }, 3000);
+            require('./src/server');
+          "
 
   frontend-ci:
     name: Frontend (lint + build)
@@ -54,9 +61,9 @@ jobs:
       run:
         working-directory: frontend
     steps:
-      - uses: actions/checkout@v4
+      - actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - actions/setup-node@v4
         with:
           node-version: 20
           cache: npm

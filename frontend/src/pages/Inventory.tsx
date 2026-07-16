@@ -246,7 +246,7 @@ const BillReceipt = ({ bill, onClose }: { bill: Bill; onClose: () => void }) => 
   </div>
   <div class="footer">
     <p>Thank you for your business!</p>
-    <p style="margin-top:4px;">Krishi Mitra &bull; Smart Agri Platform</p>
+    <p style="margin-top:4px;">Krishi Mitra &bull; Smart Agriculture Platform</p>
   </div>
 </body>
 </html>`;

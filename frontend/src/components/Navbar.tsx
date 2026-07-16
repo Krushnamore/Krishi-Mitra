@@ -80,7 +80,7 @@ export const Navbar = () => {
             <div className="p-2 bg-primary text-primary-foreground rounded-lg">
               <Leaf className="h-5 w-5" />
             </div>
-            <span className="font-bold hidden sm:block text-foreground">Smart Agri</span>
+            <span className="font-bold hidden sm:block text-foreground">Krishi Mitra</span>
           </Link>
 
           <div className="hidden md:flex items-center gap-1 overflow-x-auto">

@@ -7,7 +7,7 @@ export const Footer = () => {
       // ✅ Native share sheet (mobile + modern desktop)
       try {
         await navigator.share({
-          title: 'Krishi Mitra — Smart Agri',
+          title: 'Krishi Mitra',
           text: 'AI-powered inventory management and demand forecasting for sustainable agriculture.',
           url: 'https://krishi-mitra-beryl.vercel.app',
         });
@@ -31,7 +31,7 @@ export const Footer = () => {
               <div className="p-2 rounded-lg bg-primary">
                 <Leaf className="h-5 w-5" />
               </div>
-              <span className="font-display font-bold text-lg">Smart Agri</span>
+              <span className="font-display font-bold text-lg">Krishi Mitra</span>
             </div>
             <p className="text-sm opacity-80">
               AI-powered inventory management and demand forecasting for sustainable agriculture.
@@ -97,7 +97,7 @@ export const Footer = () => {
         </div>
 
         <div className="mt-8 pt-8 border-t border-primary-foreground/20 text-center text-sm opacity-60">
-          <p>© 2026 Smart Agri-Input Inventory System. All rights reserved by Shela Gang. Built for PRPCERM Hackathon</p>
+          <p>© 2026 Krishi Mitra-Input Inventory System. All rights reserved by Shela Gang. Built for PRPCERM Hackathon</p>
           <p className="mt-1">Powered by AI • Industry 5.0 • AI-Assisted Decision Making</p>
         </div>
       </div>

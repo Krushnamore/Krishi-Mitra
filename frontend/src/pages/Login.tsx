@@ -170,6 +170,7 @@ const Login = () => {
                       <input
                         type="email"
                         required
+                        autoComplete="email"
                         value={resetEmail}
                         onChange={e => setResetEmail(e.target.value)}
                         placeholder="your@email.com"
@@ -206,6 +207,7 @@ const Login = () => {
                         type="text"
                         required
                         maxLength={6}
+                        autoComplete="one-time-code"
                         value={resetForm.otp}
                         onChange={e => setR('otp', e.target.value.replace(/\D/g, '').slice(0, 6))}
                         placeholder="Enter OTP"
@@ -219,6 +221,7 @@ const Login = () => {
                           type={showNewPassword ? 'text' : 'password'}
                           required
                           minLength={6}
+                          autoComplete="new-password"
                           value={resetForm.newPassword}
                           onChange={e => setR('newPassword', e.target.value)}
                           placeholder="Min 6 characters"
@@ -239,6 +242,7 @@ const Login = () => {
                         type="password"
                         required
                         minLength={6}
+                        autoComplete="new-password"
                         value={resetForm.confirmPassword}
                         onChange={e => setR('confirmPassword', e.target.value)}
                         placeholder="Repeat new password"
@@ -327,6 +331,7 @@ const Login = () => {
                       <label className="text-sm font-medium text-foreground block mb-1">Email *</label>
                       <input
                         type="email" required value={form.email}
+                        autoComplete="email"
                         onChange={e => set('email', e.target.value)}
                         placeholder="you@example.com" className={inputClass}
                       />
@@ -338,6 +343,7 @@ const Login = () => {
                         <input
                           type={showPassword ? 'text' : 'password'}
                           required minLength={6} value={form.password}
+                          autoComplete={mode === 'register' ? 'new-password' : 'current-password'}
                           onChange={e => set('password', e.target.value)}
                           placeholder="Min 6 characters"
                           className={`${inputClass} pr-10`}

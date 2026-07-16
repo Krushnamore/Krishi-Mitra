@@ -1,22 +1,41 @@
-import sgMail from '@sendgrid/mail';
+import { Resend } from 'resend';
 
-// ✅ Set API key once at module load
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+// ✅ Resend client — set once at module load
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-const FROM = process.env.EMAIL_FROM || 'Krishi Mitra <more96899@gmail.com>';
+// ⚠️ Resend requires the "from" address to be on a domain you've verified
+// in the Resend dashboard (Domains → Add Domain → add the DNS/SPF/DKIM records).
+// Until a domain is verified, Resend only lets you send from
+// "onboarding@resend.dev" and only to the email you signed up with —
+// that restriction (and a non-authenticated sender) is the usual reason
+// OTP mails land in spam. See the note at the bottom of this file.
+const FROM = process.env.EMAIL_FROM || 'Krishi Mitra <onboarding@resend.dev>';
 
 export async function verifyEmailConfig() {
-  if (!process.env.SENDGRID_API_KEY) {
-    console.warn('⚠️  Email not configured: SENDGRID_API_KEY missing');
+  if (!process.env.RESEND_API_KEY) {
+    console.warn('⚠️  Email not configured: RESEND_API_KEY missing');
     return false;
   }
-  console.log('✅ Email service configured (SendGrid)');
+  console.log('✅ Email service configured (Resend)');
   return true;
 }
 
 export async function sendEmail({ to, subject, html, text }) {
-  await sgMail.send({ to, from: FROM, subject, html, text });
-  console.log('✅ Email sent to', to);
+  const { data, error } = await resend.emails.send({
+    from: FROM,
+    to,
+    subject,
+    html,
+    text,
+  });
+
+  if (error) {
+    // Surface a real Error so callers' try/catch (auth.controller.js) works as before
+    throw new Error(error.message || 'Failed to send email via Resend');
+  }
+
+  console.log('✅ Email sent to', to, '| id:', data?.id);
+  return data;
 }
 
 export async function sendOTPEmail(to, otp, name) {

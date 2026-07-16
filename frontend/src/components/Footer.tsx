@@ -42,9 +42,10 @@ export const Footer = () => {
           <div>
             <h4 className="font-semibold mb-4">Quick Links</h4>
             <ul className="space-y-2 text-sm opacity-80">
+              <li><Link to="/" className="hover:opacity-100 transition-opacity">Home</Link></li>
+              <li><Link to="/about" className="hover:opacity-100 transition-opacity">About</Link></li>
               <li><Link to="/dashboard" className="hover:opacity-100 transition-opacity">Dashboard</Link></li>
-              <li><Link to="/" className="hover:opacity-100 transition-opacity">AI Suggestion</Link></li>
-              <li><Link to="/about" className="hover:opacity-100 transition-opacity">Inventory Managment</Link></li>
+              <li><Link to="/login" className="hover:opacity-100 transition-opacity">Sign In / Register</Link></li>
             </ul>
           </div>
 
@@ -52,9 +53,10 @@ export const Footer = () => {
           <div>
             <h4 className="font-semibold mb-4">Resources</h4>
             <ul className="space-y-2 text-sm opacity-80">
-              <li><Link to="/impact" className="hover:opacity-100 transition-opacity">Weather</Link></li>
-              <li><Link to="/future" className="hover:opacity-100 transition-opacity">Stocks Prediction</Link></li>
-              <li><Link to="/login" className="hover:opacity-100 transition-opacity">Notification</Link></li>
+              <li><Link to="/weather" className="hover:opacity-100 transition-opacity">Weather</Link></li>
+              <li><Link to="/inventory" className="hover:opacity-100 transition-opacity">Inventory Management</Link></li>
+              <li><Link to="/alerts" className="hover:opacity-100 transition-opacity">Alerts</Link></li>
+              <li><Link to="/farmer/chatbot" className="hover:opacity-100 transition-opacity">AI Chatbot</Link></li>
             </ul>
           </div>
 

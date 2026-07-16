@@ -24,7 +24,8 @@ jobs:
     env:
       NODE_ENV: development
       MONGODB_URI: "mongodb://localhost:27017/agri_insights_ci"
-      SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
+      RESEND_API_KEY: "re_ci_placeholder_key"
+      EMAIL_FROM: "Krishi Mitra <onboarding@resend.dev>"
       JWT_SECRET: "ci-only-placeholder-secret"
       JWT_EXPIRES_IN: "7d"
       GROQ_API_KEY: "ci-placeholder-key"

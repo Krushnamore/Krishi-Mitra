@@ -131,8 +131,11 @@ export const cropDiagnosis = async (req, res) => {
       return res.status(400).json({ message: 'imageBase64 is required' });
 
     const body = {
-      model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+      model: 'qwen/qwen3.6-27b',
       max_tokens: 2048,
+      temperature: 0.7,
+      reasoning_effort: 'none',
+      response_format: { type: 'json_object' },
       messages: [
         {
           role: 'user',
@@ -189,7 +192,10 @@ Analyze this crop image and provide a detailed diagnosis in this EXACT JSON form
     }
 
     const groqData = await groqRes.json();
-    const content = groqData.choices[0].message.content;
+    let content = groqData.choices[0].message.content || '';
+    // Some Groq reasoning models can wrap output in <think>...</think> even with reasoning_effort='none';
+    // strip it defensively so JSON parsing below doesn't break.
+    content = content.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
 
     let diagnosis;
     try {

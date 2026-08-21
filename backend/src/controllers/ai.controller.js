@@ -13,8 +13,9 @@ const groqChat = async (messages, systemPrompt = '') => {
   if (validMessages.length === 0) throw new Error('No valid messages to send');
 
   const body = {
-    model: 'llama-3.3-70b-versatile',
+    model: 'openai/gpt-oss-120b',
     max_tokens: 1024,
+    reasoning_effort: 'low',
     messages: systemPrompt
       ? [{ role: 'system', content: systemPrompt }, ...validMessages]
       : validMessages,
@@ -149,7 +150,10 @@ export const cropDiagnosis = async (req, res) => {
             {
               type: 'text',
               text: `You are an expert agricultural pathologist specializing in Indian crops.
-Analyze this crop image and provide a detailed diagnosis in this EXACT JSON format only, no markdown:
+Analyze this crop image and provide a detailed diagnosis in this EXACT JSON format only, no markdown, no extra commentary.
+
+IMPORTANT: Every field below is REQUIRED and must be non-empty, even if the crop looks healthy — for a healthy crop, fill "treatment" with general maintenance/fertilizer guidance instead of disease treatment. Always include at least 2 items in "symptoms", "causes", "treatment.organic", "treatment.cultural", and "prevention". Always include at least 1 item in "treatment.sprays" (use a general-purpose fungicide/pesticide with dosage if no specific disease is identified).
+
 {
   "cropName": "name of the crop (e.g. Wheat, Rice, Cotton, Tomato)",
   "healthStatus": "Healthy|Diseased|Stressed|Unknown",
@@ -162,7 +166,7 @@ Analyze this crop image and provide a detailed diagnosis in this EXACT JSON form
       { "name": "chemical/fungicide name", "dosage": "e.g. 2ml/L water", "frequency": "e.g. every 7 days for 3 weeks" }
     ],
     "organic": ["organic remedy 1", "organic remedy 2"],
-    "cultural": ["cultural practice 1"]
+    "cultural": ["cultural practice 1", "cultural practice 2"]
   },
   "prevention": ["tip1", "tip2"],
   "urgency": "Low|Medium|High|Critical",
